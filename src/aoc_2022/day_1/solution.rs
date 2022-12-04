@@ -3,7 +3,7 @@ use std::cmp;
 use crate::util::file::read_input;
 use crate::aoc_2022::constants;
 
-const PROBLEM: &str = "p_1_counting_calories";
+const PROBLEM: &str = "day_1";
 
 /// 1. Calorie Counting
 /// https://adventofcode.com/2022/day/1
@@ -34,7 +34,7 @@ pub fn solve(filename: String) -> i32 {
 
 #[cfg(test)]
 mod tests {
-    use crate::aoc_2022::p_1_counting_calories::solution::solve;
+    use crate::aoc_2022::day_1::solution::solve;
 
     #[test]
     fn it_works() {

@@ -1,3 +1,3 @@
 mod constants;
 
-pub mod p_1_counting_calories;
+pub mod day_1;
