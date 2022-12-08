@@ -1,7 +1,7 @@
 use std::fs;
 use std::env;
 
-fn get_current_dir() -> String {
+pub fn get_current_dir() -> String {
     let result = env::current_dir();
     match result {
         Ok(result) => return result.into_os_string().into_string().unwrap(),
