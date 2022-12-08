@@ -31,7 +31,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 
     // Left to right
     for i in 0..length {
-        let mut max_height = 0;
+        let mut max_height = -1;
         for j in 0..length {
             if tree_table[i][j] > max_height {
                 spotted_table[i][j] = true;
@@ -42,7 +42,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 
     // right to left
     for i in 0..length {
-        let mut max_height = 0;
+        let mut max_height = -1;
         for j in (0..length).rev() {
             if tree_table[i][j] > max_height {
                 spotted_table[i][j] = true;
@@ -53,7 +53,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 
     // top to bottom
     for i in 0..length {
-        let mut max_height = 0;
+        let mut max_height = -1;
         for j in 0..length {
             if tree_table[j][i] > max_height {
                 spotted_table[j][i] = true;
@@ -64,7 +64,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 
     // bottom to top
     for i in 0..length {
-        let mut max_height = 0;
+        let mut max_height = -1;
         for j in (0..length).rev() {
             if tree_table[j][i] > max_height {
                 spotted_table[j][i] = true;
@@ -90,11 +90,11 @@ mod tests {
     use crate::aoc_2022::day_8::solution::solve;
 
     #[test]
-    fn part_1() {
+    fn test() {
         let input_file = "sample.txt";
         let result = solve(input_file.to_string());
         match result {
-            Ok(x) => assert_eq!(x, 1896),
+            Ok(x) => assert_eq!(x, 1733),
             Err(_error) => return,
         }
     }
