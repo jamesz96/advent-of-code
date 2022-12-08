@@ -33,11 +33,11 @@ fn compute_properties(dir: &Directory, iter: &mut Lines<BufReader<File>>) {
             Ok(line) => {
                 let splits: Vec<&str> = line.split(" ").collect();
                 let entity_name = splits[1];
-                match splits[0] {
-                    "dir" => {
-                        let new_dir = Directory { name: Box::new(entity_name), subdirs: HashMap::new(), parent: Some(dir), size: 0 };
-                    }
-                }
+                // match splits[0] {
+                //     "dir" => {
+                //         let new_dir = Directory { name: Box::new(entity_name), subdirs: HashMap::new(), parent: Some(*dir), size: 0 };
+                //     }
+                // }
 
             }
             Err(_error) => continue,
@@ -98,12 +98,11 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 
 #[cfg(test)]
 mod tests {
-    use crate::aoc_2022::day_7::solution::solve;
+    // use crate::aoc_2022::day_7::solution::solve;
 
     #[test]
     fn part_1() {
         let input_file = "sample.txt";
-        let result = solve(input_file.to_string());
-        assert_eq!(result, 1896);
+        assert_eq!(1, 0);
     }
 }
