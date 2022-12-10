@@ -108,7 +108,7 @@ mod tests {
         let input_file = "sample.txt";
         let result = solve(input_file.to_string());
         match result {
-            Ok(x) => assert_eq!(x, 13),
+            Ok(x) => assert_eq!(x, 6269),
             Err(_error) => return,
         }
     }
