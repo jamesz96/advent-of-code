@@ -25,7 +25,6 @@ pub fn solve(filename: String) -> Result<i32, Error> {
     while let Some(line) = iter.next() {
         match line {
             Ok(command) => {
-                // println!("{}", command);
                 if command == "" { continue; }
                 if command  == "noop" {
                     if tick >= START_CYCLE && (tick - START_CYCLE) % INTERVAL_LENGTH == 0 {
@@ -53,7 +52,6 @@ pub fn solve(filename: String) -> Result<i32, Error> {
             Err(_error) => continue,
         }
     }
-    println!("{}", tick);
     return Ok(result);
 }
 
