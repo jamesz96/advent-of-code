@@ -6,7 +6,6 @@ const PROBLEM: &str = "day_9";
 #[derive(Eq, Hash, PartialEq, Copy, Clone, Debug)]
 struct Pos { x: i32, y: i32 }
 struct Update { head: Pos, tail: Pos }
-#[derive(Debug)]
 enum Direction { UP, DOWN, RIGHT, LEFT }
 
 fn is_linked(a: &Pos, b: &Pos) -> bool {
