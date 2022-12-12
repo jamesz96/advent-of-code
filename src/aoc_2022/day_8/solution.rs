@@ -15,9 +15,9 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 
     for raw_line in reader.lines() {
         match raw_line {
-            Ok(raw_line) => {
-                if raw_line == "" { continue; }
-                let col_elements: Vec<&str> = raw_line.split("").collect();
+            Ok(line) => {
+                if line == "" { continue; }
+                let col_elements: Vec<&str> = line.split("").collect();
                 let iter = col_elements[1..col_elements.len()-1].iter();
                 tree_table.push(iter.map(|letter| letter.parse::<i32>().unwrap()).collect())
             },
