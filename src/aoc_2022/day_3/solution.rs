@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use crate::util::char::get_letter_idx;
 use crate::util::file::read_input;
 use crate::aoc_2022::constants;
 
@@ -8,7 +9,7 @@ const ALPHABET_LENGTH: u32 = 26;
 
 fn get_priority_value(letter: char) -> u32 {
     if letter.is_ascii_lowercase() {
-        return (letter as u32) - ('a' as u32) + 1;
+        return get_letter_idx(letter) + 1;
     }
     return letter as u32 - ('A' as u32) + ALPHABET_LENGTH + 1
 }
