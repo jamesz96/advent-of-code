@@ -92,7 +92,7 @@ mod tests {
     use crate::aoc_2022::day_12::solution::solve;
 
     #[test]
-    fn part_1() {
+    fn test() {
         let input_file = "sample.txt";
         let result = solve(input_file.to_string());
         match result {
