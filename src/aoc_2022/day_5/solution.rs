@@ -1,35 +1,10 @@
-use std::collections::VecDeque;
+use std::io::BufRead;
 
-use crate::util::file::read_input;
-use crate::aoc_2022::constants;
+use crate::util::file::get_input_reader;
+use crate::aoc_2022::constants::YEAR;
 
 const PROBLEM: &str = "day_5";
-
 const TOKEN_SIZE: usize = 3;
-
-fn parse_configuration(raw_config: &[&str], config: &mut Vec<VecDeque<char>>) {
-    for line in raw_config {
-        let mut chars = line.chars();
-        let mut col_idx = 0;
-        while let Some(c) = chars.next() {
-            let mut letter = c;
-            for i in 0..TOKEN_SIZE+1 {
-                if i == 1 {
-                    if letter != ' ' {
-                        config[col_idx].push_front(letter);
-                    }
-                } else {
-                    let result = chars.next();
-                    match result {
-                        Some(x) => letter = x,
-                        None => break,
-                    }
-                }
-            }
-            col_idx += 1;
-        }
-    }
-}
 
 struct Instruction {
     quantity: i32,
@@ -47,14 +22,42 @@ fn parse_instruction(raw_instruction: &str) -> Instruction {
     }
 }
 
-fn rearrange(instruction: &Instruction, config: &mut Vec<VecDeque<char>>) {
+fn parse_configuration(raw_config: &Vec<String>, num_columns: usize) -> Vec<Vec<char>> {
+    let mut result: Vec<Vec<char>> = vec![Vec::new(); num_columns];
+    for line in raw_config.iter() {
+        let mut chars = line.chars();
+        let mut col_idx = 0;
+        while let Some(c) = chars.next() {
+            let mut letter = c;
+            for i in 0..TOKEN_SIZE+1 {
+                if i == 1 {
+                    if letter != ' ' {
+                        result[col_idx].push(letter);
+                    }
+                } else {
+                    let result = chars.next();
+                    match result {
+                        Some(x) => letter = x,
+                        None => break,
+                    }
+                }
+            }
+            col_idx += 1;
+        }
+    }
+    for i in 0..num_columns { result[i].reverse(); }
+    return result;
+}
+
+
+fn rearrange(instruction: &Instruction, config: &mut Vec<Vec<char>>) {
     let source_idx = (instruction.source as usize) - 1;
     let destination_idx = (instruction.destination as usize) - 1;
 
     for _i in 0..instruction.quantity {
-        let item = config[source_idx].pop_back();
+        let item = config[source_idx].pop();
         match item {
-            Some(x) => config[destination_idx].push_back(x),
+            Some(x) => config[destination_idx].push(x),
             None => continue,
         }
     }
@@ -62,39 +65,44 @@ fn rearrange(instruction: &Instruction, config: &mut Vec<VecDeque<char>>) {
 
 /// Supply Stacks
 /// https://adventofcode.com/2022/day/5
-pub fn solve(filename: String) -> String {
-    let contents = read_input(filename, constants::YEAR.to_string(), PROBLEM.to_string());
-    let lines: Vec<&str> = contents.split("\n").collect();
-
-    let mut idx = 0;
+pub fn solve_1(filename: &str) -> String {
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
     let mut num_columns = 0;
 
-    while !(lines[idx] == "") {
-        if lines[idx].starts_with(" 1") {
-            let columns: Vec<&str> = lines[idx].split(" ").collect();
-            num_columns = columns[columns.len()-1].parse::<usize>().unwrap();
-        }
-        idx += 1;
+    let mut iter = reader.lines();
+    let mut raw_config: Vec<String> = vec![];
+    while let Some(raw_line) = iter.next() {
+        match raw_line {
+            Ok(line) => {
+                if line.starts_with(" 1") {
+                    let columns: Vec<&str> = line.split(" ").collect();
+                    num_columns = columns[columns.len()-1].parse::<usize>().unwrap();
+                    break;
+                } else {
+                    raw_config.push(line);
+                }
+            },
+            Err(error) => panic!("{}", error)
+        };
     }
 
-    let mut configuration: Vec<VecDeque<char>> = vec![VecDeque::new(); num_columns];
+    let mut configuration: Vec<Vec<char>> = parse_configuration(&raw_config, num_columns);
 
-    parse_configuration(&lines[..idx-1], &mut configuration);
-
-    while idx < lines.len() {
-        if lines[idx] == "" {
-            idx += 1;
-            continue;
-        }
-        let instruction = parse_instruction(lines[idx]);
-        rearrange(&instruction, &mut configuration);
-        idx += 1;
+    while let Some(raw_line) = iter.next() {
+        match raw_line {
+            Ok(line) => {
+                if line == "" { continue; }
+                let instruction = parse_instruction(&line);
+                rearrange(&instruction, &mut configuration);
+            },
+            Err(error) => panic!("{}", error),
+        };
     }
 
 
     let mut top_items: Vec<char> = vec![];
     for i in 0..num_columns {
-        let item = configuration[i].back();
+        let item = configuration[i].last();
         match item {
             Some(x) => top_items.push(*x),
             None => continue,
@@ -108,12 +116,20 @@ pub fn solve(filename: String) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::aoc_2022::day_5::solution::solve;
+    use super::solve_1;
+
+    #[ignore]
+    #[test]
+    fn part_1() {
+        let input_file = "sample.txt";
+        let result = solve_1(input_file);
+        assert_eq!(result, "PSNRGBTFT");
+    }
 
     #[test]
-    fn test() {
-        let input_file = "sample.txt";
-        let result = solve(input_file.to_string());
-        assert_eq!(result, "PSNRGBTFT");
+    fn part_2() {
+        let input_file = "test.txt";
+        let result = solve_1(input_file);
+        assert_eq!(result, "CMZ");
     }
 }
