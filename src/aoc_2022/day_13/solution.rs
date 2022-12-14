@@ -32,8 +32,11 @@ fn is_in_order(a: &Packet, b: &Packet) -> CompareResult {
             Element::Value(val_a) => {
                 match element_b {
                     Element::Value(val_b) => {
-                        if val_a > val_b { return CompareResult::InOrder }
-                        if val_a < val_b { return CompareResult::OutOfOrder; }
+                        println!("-----");
+                        println!("{}", val_a);
+                        println!("{}", val_b);
+                        if val_a > val_b { return CompareResult::OutOfOrder }
+                        if val_a < val_b { return CompareResult::InOrder; }
                     },
                     Element::Packet(packet_b) => {
                         let transformed_packet_a = Packet { elements: vec![Element::Value(*val_a)] };
@@ -73,7 +76,7 @@ fn is_in_order(a: &Packet, b: &Packet) -> CompareResult {
     if idx_a < a.elements.len() && idx_b == b.elements.len() {
         return CompareResult::OutOfOrder;
     }
-    return CompareResult::InOrder;
+    return CompareResult::Same;
 }
 
 fn parse_packet(line: &str) -> Packet {
@@ -136,9 +139,9 @@ pub fn solve(filename: String) -> Result<i32, Error> {
                 match order_result {
                     CompareResult::OutOfOrder => {
                         result += idx;
-                        println!("{}", true);
+                        println!("{}", false);
                     },
-                    _ => println!("{}", false),
+                    _ => println!("{}", true),
                 }
 
                 // Skip blank line
@@ -171,6 +174,7 @@ mod tests {
         }
     }
 
+    // #[ignore]
     #[test]
     fn test() {
         let input_file = "test.txt";
