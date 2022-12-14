@@ -76,7 +76,7 @@ pub fn solve(filename: &str) -> i32 {
                 }
                 score += round_score;
             },
-            Err(_error) => panic!("Error reading line"),
+            Err(error) => panic!("{}", error)
         };
     }
     return score;
@@ -128,7 +128,7 @@ pub fn solve_part_2(filename: &str) -> i32 {
                 }
                 score += round_score;
             },
-            Err(error) => panic!("{}", error),
+            Err(error) => panic!("{}", error)
         }
     }
 
