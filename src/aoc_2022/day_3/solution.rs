@@ -95,6 +95,6 @@ mod tests {
     fn part_2() {
         let input_file = "sample.txt";
         let result = solve_2(input_file);
-        assert_eq!(result, 7428);
+        assert_eq!(result, 2650);
     }
 }
