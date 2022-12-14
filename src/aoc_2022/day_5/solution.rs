@@ -164,6 +164,6 @@ mod tests {
     fn part_2() {
         let input_file = "sample.txt";
         let result = solve(input_file, CraneType::CrateMover9001);
-        assert_eq!(result, "CMZ");
+        assert_eq!(result, "BNTZFPMMW");
     }
 }
