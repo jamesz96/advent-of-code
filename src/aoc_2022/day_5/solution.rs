@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io::BufRead;
 
 use crate::util::file::get_input_reader;
@@ -5,6 +6,12 @@ use crate::aoc_2022::constants::YEAR;
 
 const PROBLEM: &str = "day_5";
 const TOKEN_SIZE: usize = 3;
+
+#[derive(PartialEq)]
+pub enum CraneType {
+    Normal,
+    CrateMover9001,
+}
 
 struct Instruction {
     quantity: i32,
@@ -63,9 +70,32 @@ fn rearrange(instruction: &Instruction, config: &mut Vec<Vec<char>>) {
     }
 }
 
+fn rearrange_ext(instruction: &Instruction, config: &mut Vec<Vec<char>>) {
+    let source_idx = (instruction.source as usize) - 1;
+    let destination_idx = (instruction.destination as usize) - 1;
+
+    let mut ordered_buffer: VecDeque<char> = VecDeque::new();
+
+    for _i in 0..instruction.quantity {
+        let item = config[source_idx].pop();
+        match item {
+            Some(x) => ordered_buffer.push_front(x),
+            None => continue,
+        }
+    }
+
+    while ordered_buffer.len() > 0 {
+        let item = ordered_buffer.pop_front();
+        match item {
+            Some(x) => config[destination_idx].push(x),
+            None => continue,
+        }
+    }
+}
+
 /// Supply Stacks
 /// https://adventofcode.com/2022/day/5
-pub fn solve_1(filename: &str) -> String {
+pub fn solve(filename: &str, crane_type: CraneType) -> String {
     let reader = get_input_reader(filename, YEAR, PROBLEM);
     let mut num_columns = 0;
 
@@ -93,7 +123,11 @@ pub fn solve_1(filename: &str) -> String {
             Ok(line) => {
                 if line == "" { continue; }
                 let instruction = parse_instruction(&line);
-                rearrange(&instruction, &mut configuration);
+                if crane_type == CraneType::Normal {
+                    rearrange(&instruction, &mut configuration);
+                } else if crane_type == CraneType::CrateMover9001 {
+                    rearrange_ext(&instruction, &mut configuration)
+                }
             },
             Err(error) => panic!("{}", error),
         };
@@ -116,20 +150,20 @@ pub fn solve_1(filename: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::solve_1;
+    use super::{solve, CraneType};
 
     #[ignore]
     #[test]
     fn part_1() {
         let input_file = "sample.txt";
-        let result = solve_1(input_file);
+        let result = solve(input_file, CraneType::Normal);
         assert_eq!(result, "PSNRGBTFT");
     }
 
     #[test]
     fn part_2() {
-        let input_file = "test.txt";
-        let result = solve_1(input_file);
+        let input_file = "sample.txt";
+        let result = solve(input_file, CraneType::CrateMover9001);
         assert_eq!(result, "CMZ");
     }
 }
