@@ -1,8 +1,10 @@
-use std::{io::{BufReader, Error, BufRead, Lines}, fs::File, collections::HashMap, iter::Peekable};
-use crate::{aoc_2022::constants, util::file::get_current_dir};
+use std::{io::{BufReader, BufRead, Lines}, fs::File, collections::HashMap, iter::Peekable};
+use crate::{aoc_2022::constants::YEAR, util::file::get_input_reader};
 
 const PROBLEM: &str = "day_7";
 const SIZE_LIMIT: i32 = 100000;
+const UNUSED_SPACE_REQUIRED: i32 = 30000000;
+const CAPACITY: i32 = 70000000;
 
 struct Node {
     children: Vec<String>,
@@ -78,12 +80,8 @@ fn dfs_update(item_key: &String, nodes: &HashMap<String, Node>, sizes: &mut Hash
 
 /// No Space Left On Device
 /// https://adventofcode.com/2022/day/7
-pub fn solve(filename: String) -> Result<i32, Error> {
-    let current_dir = get_current_dir();
-    let path = format!("{}/src/{}/{}/{}", current_dir, constants::YEAR.to_string(), PROBLEM.to_string(), filename);
-
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
+pub fn solve(filename: &str, is_update: bool) -> i32 {
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
 
     let mut stack: Vec<String> = vec![];
     let root = String::from("/");
@@ -112,28 +110,47 @@ pub fn solve(filename: String) -> Result<i32, Error> {
     let mut size_map: HashMap<String, i32> = HashMap::new();
     dfs_update(&root, &arena.nodes, &mut size_map);
 
-    let mut result = 0;
-    for val in size_map.values() {
-        if *val <= SIZE_LIMIT {
-            result += val;
-        }
-    }
 
-    return Ok(result);
+    match is_update {
+        true => {
+            let total_size_used = size_map.get(&root).unwrap();
+            let unused_size = CAPACITY - total_size_used;
+            let threshold = UNUSED_SPACE_REQUIRED - unused_size;
+
+            let mut result = std::i32::MAX;
+            for val in size_map.values() {
+                if val >= &threshold {
+                    result = std::cmp::min(*val, result);
+                }
+            }
+            return result;
+        }
+        false => {
+            let mut result = 0;
+            for val in size_map.values() {
+                if *val <= SIZE_LIMIT { result += val; }
+            }
+            return result;
+        }
+    };
 }
 
 
 #[cfg(test)]
 mod tests {
-    use crate::aoc_2022::day_7::solution::solve;
+    use super::solve;
 
     #[test]
-    fn test() {
+    fn part_1() {
         let input_file = "sample.txt";
-        let result = solve(input_file.to_string());
-        match result {
-            Ok(x) => assert_eq!(x, 1182909),
-            Err(_error) => return,
-        }
+        let result = solve(input_file, false);
+        assert_eq!(result, 1182909);
+    }
+
+    #[test]
+    fn part_2() {
+        let input_file = "sample.txt";
+        let result = solve(input_file, true);
+        assert_eq!(result, 2832508);
     }
 }
