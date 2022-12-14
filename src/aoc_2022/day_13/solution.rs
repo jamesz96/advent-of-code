@@ -9,12 +9,18 @@ enum Element {
     Packet(Packet),
 }
 
+enum CompareResult {
+    Same,
+    InOrder,
+    OutOfOrder,
+}
+
 #[derive(Debug)]
 struct Packet {
     elements: Vec<Element>,
 }
 
-fn is_in_order(a: &Packet, b: &Packet) -> bool {
+fn is_in_order(a: &Packet, b: &Packet) -> CompareResult {
     let mut idx_a = 0;
     let mut idx_b = 0;
 
@@ -26,27 +32,35 @@ fn is_in_order(a: &Packet, b: &Packet) -> bool {
             Element::Value(val_a) => {
                 match element_b {
                     Element::Value(val_b) => {
-                        if val_a > val_b { return false; }
-                        if val_a < val_b { return true; }
+                        if val_a > val_b { return CompareResult::InOrder }
+                        if val_a < val_b { return CompareResult::OutOfOrder; }
                     },
                     Element::Packet(packet_b) => {
                         let transformed_packet_a = Packet { elements: vec![Element::Value(*val_a)] };
                         let result = is_in_order(&transformed_packet_a, packet_b);
-                        if !result { return false; }
+                        match result {
+                            CompareResult::Same => (),
+                            _ => return result,
+                        };
                     },
                 };
             },
             Element::Packet(packet_a) => {
                 match element_b {
                     Element::Value(val_b) => {
-                        println!("TRANSFORM");
                         let transformed_packet_b = Packet { elements: vec![Element::Value(*val_b)] };
                         let result = is_in_order(packet_a, &transformed_packet_b);
-                        if !result { return false; }
+                        match result {
+                            CompareResult::Same => (),
+                            _ => return result,
+                        };
                     },
                     Element::Packet(packet_b) => {
                         let result = is_in_order(packet_a, packet_b);
-                        if !result { return false; }
+                        match result {
+                            CompareResult::Same => (),
+                            _ => return result,
+                        }
                     }
                 };
             }
@@ -57,9 +71,9 @@ fn is_in_order(a: &Packet, b: &Packet) -> bool {
     }
 
     if idx_a < a.elements.len() && idx_b == b.elements.len() {
-        return false
+        return CompareResult::OutOfOrder;
     }
-    return true;
+    return CompareResult::InOrder;
 }
 
 fn parse_packet(line: &str) -> Packet {
@@ -118,10 +132,13 @@ pub fn solve(filename: String) -> Result<i32, Error> {
                 let packet_a = parse_packet(&input);
                 let packet_b = parse_packet(&iter.next().unwrap().unwrap());
 
-                if is_in_order(&packet_a, &packet_b) {
-                    println!("RIGHT ORDER");
-                    result += idx;
-                    println!("{}", idx);
+                let order_result = is_in_order(&packet_a, &packet_b);
+                match order_result {
+                    CompareResult::OutOfOrder => {
+                        result += idx;
+                        println!("{}", true);
+                    },
+                    _ => println!("{}", false),
                 }
 
                 // Skip blank line
@@ -133,6 +150,8 @@ pub fn solve(filename: String) -> Result<i32, Error> {
         };
     }
 
+
+
     return Ok(result);
 }
 
@@ -141,9 +160,20 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 mod tests {
     use crate::aoc_2022::day_13::solution::solve;
 
+    #[ignore]
     #[test]
     fn part_1() {
         let input_file = "sample.txt";
+        let result = solve(input_file.to_string());
+        match result {
+            Ok(x) => assert_eq!(x, 13),
+            Err(_error) => return,
+        }
+    }
+
+    #[test]
+    fn test() {
+        let input_file = "test.txt";
         let result = solve(input_file.to_string());
         match result {
             Ok(x) => assert_eq!(x, 13),
