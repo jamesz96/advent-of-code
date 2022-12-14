@@ -1,9 +1,8 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufReader, Error, BufRead};
+use std::io::BufRead;
 
-use crate::util::file::{read_input, get_current_dir};
-use crate::aoc_2022::constants;
+use crate::util::file::get_input_reader;
+use crate::aoc_2022::constants::YEAR;
 
 const PROBLEM: &str = "day_2";
 
@@ -38,9 +37,8 @@ pub fn transform_part_2(letter: &str) -> PlayResult {
 
 /// Rock Paper Scissors
 /// https://adventofcode.com/2022/day/2
-pub fn solve(filename: String) -> i32 {
-    let contents = read_input(filename, constants::YEAR.to_string(), PROBLEM.to_string());
-    let lines: Vec<&str> = contents.split("\n").collect();
+pub fn solve(filename: &str) -> i32 {
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
 
     let mut result_table = [[PlayResult::TIE; 3]; 3];
 
@@ -58,25 +56,29 @@ pub fn solve(filename: String) -> i32 {
 
     let mut score = 0;
 
-    for line in lines {
-        if line == "" { continue; }
-        let values: Vec<&str> = line.split(" ").collect();
-        let opp_action = transform(values[0]);
-        let my_action = transform(values[1]);
+    for raw_line in reader.lines() {
+        match raw_line {
+            Ok(line) => {
+                if line == "" { continue; }
+                let values: Vec<&str> = line.split(" ").collect();
+                let opp_action = transform(values[0]);
+                let my_action = transform(values[1]);
 
-        let mut round_score = (my_action as i32) + 1;
+                let mut round_score = (my_action as i32) + 1;
 
-        let result = result_table[opp_action][my_action];
-        if result == PlayResult::LOSS {
-            round_score += 0;
-        } else if result == PlayResult::TIE {
-            round_score += 3;
-        } else if result == PlayResult::WIN {
-            round_score += 6;
-        }
-        score += round_score;
+                let result = result_table[opp_action][my_action];
+                if result == PlayResult::LOSS {
+                    round_score += 0;
+                } else if result == PlayResult::TIE {
+                    round_score += 3;
+                } else if result == PlayResult::WIN {
+                    round_score += 6;
+                }
+                score += round_score;
+            },
+            Err(_error) => panic!("Error reading line"),
+        };
     }
-
     return score;
 }
 
@@ -88,10 +90,7 @@ fn make_map(entries: &[usize; 3]) -> HashMap<PlayResult, usize> {
     return result;
 }
 
-pub fn solve_part_2(filename: String) -> Result<i32, Error> {
-    let current_dir = get_current_dir();
-    let path = format!("{}/src/{}/{}/{}", current_dir, constants::YEAR.to_string(), PROBLEM.to_string(), filename);
-
+pub fn solve_part_2(filename: &str) -> i32 {
     let mut table: HashMap<usize, HashMap<PlayResult, usize>> = HashMap::new();
 
     let rock_entries: HashMap<PlayResult, usize> = make_map(&[PAPER, ROCK, SCISSOR]);
@@ -102,8 +101,7 @@ pub fn solve_part_2(filename: String) -> Result<i32, Error> {
     table.insert(PAPER, paper_entries);
     table.insert(SCISSOR, scissor_entries);
 
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
 
     let mut score = 0;
 
@@ -134,7 +132,7 @@ pub fn solve_part_2(filename: String) -> Result<i32, Error> {
         }
     }
 
-    return Ok(score);
+    return score;
 }
 
 
@@ -146,17 +144,14 @@ mod tests {
     #[test]
     fn test() {
         let input_file = "sample.txt";
-        let result = solve(input_file.to_string());
+        let result = solve(input_file);
         assert_eq!(result, 13565);
     }
 
     #[test]
     fn part_2() {
         let input_file = "sample.txt";
-        let result = solve_part_2(input_file.to_string());
-        match result {
-            Ok(x) => assert_eq!(x, 12424),
-            Err(_error) => return,
-        }
+        let result = solve_part_2(input_file);
+        assert_eq!(result, 12424);
     }
 }
