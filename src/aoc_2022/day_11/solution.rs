@@ -1,5 +1,5 @@
-use std::{io::{BufReader, Error, BufRead, Lines}, fs::File, collections::VecDeque};
-use crate::{aoc_2022::constants, util::file::get_current_dir};
+use std::{io::{BufReader, BufRead, Lines}, fs::File, collections::VecDeque};
+use crate::{aoc_2022::constants::YEAR, util::file::get_input_reader};
 
 const PROBLEM: &str = "day_11";
 
@@ -101,12 +101,8 @@ fn build_monkey(iter: &mut Lines<BufReader<File>>) -> Monkey {
 
 /// Monkey in the Middle
 /// https://adventofcode.com/2022/day/11
-pub fn solve(filename: String) -> Result<i32, Error> {
-    let current_dir = get_current_dir();
-    let path = format!("{}/src/{}/{}/{}", current_dir, constants::YEAR.to_string(), PROBLEM.to_string(), filename);
-
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
+pub fn solve(filename: &str, is_worry_enabled: bool) -> i32 {
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
 
     let mut arena: Vec<VecDeque<i32>> = vec![];
     let mut monkeys: Vec<Monkey> = vec![];
@@ -126,6 +122,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
     }
 
     let num_monkeys = monkeys.len();
+    let worry_divisor = if is_worry_enabled { 3 } else { 1 };
 
     for _ in 0..ROUND_LIMIT {
         for (idx, monkey) in monkeys.iter_mut().enumerate() {
@@ -133,7 +130,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
             let mut buffer: Vec<VecDeque<i32>> = vec![VecDeque::new(); num_monkeys];
 
             while let Some(value) = items.pop_front() {
-                let new_value = monkey.inspect(value) / 3;
+                let new_value = monkey.inspect(value) / worry_divisor;
                 let target_monkey_idx = monkey.test(new_value);
                 buffer[target_monkey_idx].push_back(new_value);
             }
@@ -150,7 +147,7 @@ pub fn solve(filename: String) -> Result<i32, Error> {
     monkeys.sort_by(|a, b| b.inspect_count.cmp(&a.inspect_count));
 
     let result = monkeys[0].inspect_count * monkeys[1].inspect_count;
-    return Ok(result);
+    return result;
 }
 
 
@@ -158,13 +155,18 @@ pub fn solve(filename: String) -> Result<i32, Error> {
 mod tests {
     use crate::aoc_2022::day_11::solution::solve;
 
+    #[ignore]
     #[test]
-    fn test() {
+    fn part_1() {
         let input_file = "sample.txt";
-        let result = solve(input_file.to_string());
-        match result {
-            Ok(x) => assert_eq!(x, 67830),
-            Err(_error) => return,
-        }
+        let result = solve(input_file, true);
+        assert_eq!(result, 67830);
+    }
+
+    #[test]
+    fn part_2() {
+        let input_file = "sample.txt";
+        let result = solve(input_file, false);
+        assert_eq!(result, 67830);
     }
 }
