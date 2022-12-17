@@ -154,6 +154,7 @@ mod tests {
         assert_eq!(result, 1);
     }
 
+    #[ignore]
     #[test]
     fn part_2_b() {
         let input_file = "test_2.txt";
