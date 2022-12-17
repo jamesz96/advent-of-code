@@ -155,7 +155,6 @@ pub fn solve(filename: &str, is_worry_enabled: bool) -> i32 {
 mod tests {
     use crate::aoc_2022::day_11::solution::solve;
 
-    #[ignore]
     #[test]
     fn part_1() {
         let input_file = "sample.txt";
@@ -163,6 +162,7 @@ mod tests {
         assert_eq!(result, 67830);
     }
 
+    #[ignore]
     #[test]
     fn part_2() {
         let input_file = "sample.txt";
