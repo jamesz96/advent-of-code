@@ -1,17 +1,13 @@
-use std::{fs::File, io::{Error, BufReader, BufRead}};
-use crate::{util::file::get_current_dir, aoc_2022::constants};
+use std::io::BufRead;
+use crate::{util::file::get_input_reader, aoc_2022::constants::YEAR};
 
 const PROBLEM: &str = "day_8";
 
 /// Treetop Tree House
 /// https://adventofcode.com/2022/day/8
-pub fn solve(filename: String) -> Result<i32, Error> {
-    let current_dir = get_current_dir();
-    let path = format!("{}/src/{}/{}/{}", current_dir, constants::YEAR.to_string(), PROBLEM.to_string(), filename);
-    let file = File::open(path)?;
-
+pub fn solve_part_1(filename: &str) -> i32 {
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
     let mut tree_table: Vec<Vec<i32>> = vec![];
-    let reader = BufReader::new(file);
 
     for raw_line in reader.lines() {
         match raw_line {
@@ -81,21 +77,86 @@ pub fn solve(filename: String) -> Result<i32, Error> {
             }
         }
     }
-    return Ok(result);
+    return result;
 }
 
+fn scenic_score(table: &Vec<Vec<i32>>, pos: (usize, usize)) -> i32 {
+    let num_rows = table.len();
+    let num_cols = table[0].len();
+
+    let (mut up, mut down, mut left, mut right) = (0, 0, 0, 0);
+    let (x, y) = pos;
+    let height = table[x][y];
+
+    for i in x+1..num_rows {
+        down += 1;
+        if height <= table[i][y] { break; }
+    }
+
+    for i in (0..x).rev() {
+        up += 1;
+        if height <= table[i][y] { break; }
+    }
+
+    for i in y+1..num_cols {
+        right += 1;
+        if height <= table[x][i] { break; }
+    }
+
+    for i in (0..y).rev() {
+        left += 1;
+        if height <= table[x][i] { break; }
+    }
+
+    return up * down * left * right;
+}
+
+pub fn solve_part_2(filename: &str) -> i32 {
+    let reader = get_input_reader(filename, YEAR, PROBLEM);
+    let mut tree_table: Vec<Vec<i32>> = vec![];
+
+    for raw_line in reader.lines() {
+        match raw_line {
+            Ok(line) => {
+                if line == "" { continue; }
+                let col_elements: Vec<&str> = line.split("").collect();
+                let iter = col_elements[1..col_elements.len()-1].iter();
+                tree_table.push(iter.map(|letter| letter.parse::<i32>().unwrap()).collect())
+            },
+            Err(_error) => continue,
+        }
+    }
+
+    let length = tree_table[0].len();
+    let mut result = 0;
+
+    for i in 0..length {
+        let width = tree_table[i].len();
+        for j in 0..width {
+            let pos = (i, j);
+            let score = scenic_score(&tree_table, pos);
+            result = std::cmp::max(result, score);
+        }
+    }
+    return result;
+}
 
 #[cfg(test)]
 mod tests {
-    use crate::aoc_2022::day_8::solution::solve;
+    use super::solve_part_1;
+    use super::solve_part_2;
 
     #[test]
-    fn test() {
+    fn test_1() {
         let input_file = "sample.txt";
-        let result = solve(input_file.to_string());
-        match result {
-            Ok(x) => assert_eq!(x, 1733),
-            Err(_error) => return,
-        }
+        let result = solve_part_1(input_file);
+        assert_eq!(result, 1733);
+    }
+
+    #[test]
+    fn test_2() {
+        let input_file = "sample.txt";
+        let result = solve_part_2(input_file);
+        assert_eq!(result, 284648);
     }
 }
