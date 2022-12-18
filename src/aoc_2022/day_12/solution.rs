@@ -23,7 +23,6 @@ fn shortest_length_path(
         let (x, y, l) = curr;
 
         let pos = (x, y);
-        println!("{:?}", pos);
         let curr_height = map[x][y];
 
         if end_fn(curr_height, pos) { return l; }
@@ -32,22 +31,22 @@ fn shortest_length_path(
         let mut nachbarn: Vec<(usize, usize)> = vec![];
 
         if x >= 1 && (
-        (!is_reverse && curr_height + 1 >= map[x-1][y]) || (is_reverse && curr_height - 1 >= map[x-1][y])) {
+        (!is_reverse && curr_height + 1 >= map[x-1][y]) || (is_reverse && curr_height - 1 <= map[x-1][y])) {
             nachbarn.push((x-1, y));
         }
 
         if y >= 1 && (
-        (!is_reverse && curr_height + 1 >= map[x][y-1]) || (is_reverse && curr_height - 1 >= map[x][y-1])) {
+        (!is_reverse && curr_height + 1 >= map[x][y-1]) || (is_reverse && curr_height - 1 <= map[x][y-1])) {
             nachbarn.push((x, y-1));
         }
 
         if x + 1 < num_rows && (
-        (!is_reverse && curr_height + 1 >= map[x+1][y]) || (is_reverse && curr_height - 1 >= map[x+1][y])) {
+        (!is_reverse && curr_height + 1 >= map[x+1][y]) || (is_reverse && curr_height - 1 <= map[x+1][y])) {
             nachbarn.push((x+1, y));
         }
 
         if y + 1 < num_cols && (
-        (!is_reverse && curr_height + 1 >= map[x][y+1]) || (is_reverse && curr_height - 1 >= map[x][y+1])) {
+        (!is_reverse && curr_height + 1 >= map[x][y+1]) || (is_reverse && curr_height - 1 <= map[x][y+1])) {
             nachbarn.push((x, y+1));
         }
 
@@ -143,11 +142,10 @@ mod tests {
         assert_eq!(result, 29);
     }
 
-    #[ignore]
     #[test]
     fn part_2() {
         let input_file = "sample.txt";
         let result = solve_part_2(input_file, 'a');
-        assert_eq!(result, 29);
+        assert_eq!(result, 377);
     }
 }
